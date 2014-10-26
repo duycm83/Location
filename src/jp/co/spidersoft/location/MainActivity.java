@@ -1,5 +1,7 @@
 package jp.co.spidersoft.location;
 
+import java.util.Locale;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -9,10 +11,15 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
+import android.webkit.WebView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity implements LocationListener {
 	private static final String TAG = "MainActivity";
@@ -20,6 +27,7 @@ public class MainActivity extends Activity implements LocationListener {
 	private static TextView lt;
 	private static TextView ln;
 	private static TextView ac;
+	private static WebView webview;
 	String provider;
 	Location l;
 
@@ -30,6 +38,7 @@ public class MainActivity extends Activity implements LocationListener {
 		ln = (TextView) findViewById(R.id.lng);
 		lt = (TextView) findViewById(R.id.lat);
 		ac = (TextView) findViewById(R.id.acc);
+		webview = (WebView) findViewById(R.id.webview);
 		// get location service
 		lm = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 		boolean isGPSProviderEnabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -88,7 +97,7 @@ public class MainActivity extends Activity implements LocationListener {
 		
 	}
 
-	private void updateview(double lng, double lat, double acc) {
+	private void updateview(final double lng, final double lat, final double acc) {
 		Log.v(TAG, "updateview");
 		Log.v(TAG, "lng:"+lng);
 		Log.v(TAG, "lat:"+lat);
@@ -96,7 +105,24 @@ public class MainActivity extends Activity implements LocationListener {
 		ln.setText(String.valueOf(lng));
 		lt.setText(String.valueOf(lat));
 		ac.setText(String.valueOf(acc));
-//		Toast.makeText(this, String.valueOf(lng), Toast.LENGTH_SHORT).show();
+		String URL = "http://maps.google.com/maps/api/staticmap?center="+lat+","+lng+"&zoom=15&size=500x200&markers=color:red|"+lat+","+lng+"&sensor=false";
+		webview.getSettings().setLoadWithOverviewMode(true);
+		webview.getSettings().setUseWideViewPort(true);
+		webview.loadUrl(URL);
+		webview.setOnTouchListener(new OnTouchListener() {
+			
+			@Override
+			public boolean onTouch(View v, MotionEvent event) {
+				  switch (event.getAction()) {
+				  case MotionEvent.ACTION_UP:
+					  String uri = String.format(Locale.getDefault(), "geo:%f,%f", lat, lng);
+						Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
+						startActivity(intent);	
+						return v.performClick();
+				  }
+				return false;
+			}
+		});
 	}
 
 	@Override
@@ -113,4 +139,6 @@ public class MainActivity extends Activity implements LocationListener {
 	public void onStatusChanged(String arg0, int arg1, Bundle arg2) {
 		Log.v(TAG, "onStatusChanged"+arg0);
 	}
+	
+
 }

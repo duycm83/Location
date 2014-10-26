@@ -54,4 +54,13 @@
    android:layout_below="@+id/textView4"
    android:text=""
    android:textSize="30sp" />
+
+<WebView
+    android:id="@+id/webview"
+    android:layout_width="500dp"
+    android:layout_height="200dp"
+    android:layout_alignParentLeft="true"
+    android:layout_below="@+id/acc"
+    android:layout_marginTop="22dp" />
+
 </RelativeLayout>
